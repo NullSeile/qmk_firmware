@@ -348,6 +348,9 @@ void oled_clear(void);
 // all.
 void oled_render_dirty(bool all);
 
+void oled_set_cursor_exact(uint16_t index);
+uint8_t oled_read_raw_byte(uint16_t index);
+
 // Moves cursor to character position indicated by column and line, wraps if out of bounds
 // Max column denoted by 'oled_max_chars()' and max lines by 'oled_max_lines()' functions
 void oled_set_cursor(uint8_t col, uint8_t line);
