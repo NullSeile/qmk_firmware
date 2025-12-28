@@ -24,12 +24,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #define HOLD_ON_OTHER_KEY_PRESS
 
+// #define OLED_TIMEOUT_AUX 1000
 #define OLED_TIMEOUT_AUX 120000
 
+// #define OLED_FADE_OUT_INTERVAL 2
+// #define OLED_FADE_OUT
 #if defined(RIGHT_SIDE)
-#define OLED_TIMEOUT 1000
+#define OLED_TIMEOUT 100
+// #define OLED_UPDATE_INTERVAL 100
 #else
 #define OLED_TIMEOUT OLED_TIMEOUT_AUX
+#define OLED_UPDATE_INTERVAL 40
 #endif
 
 // #define OLED_TIMEOUT 120000

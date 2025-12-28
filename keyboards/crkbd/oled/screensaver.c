@@ -19,8 +19,7 @@ oled_rotation_t oled_init_kb(oled_rotation_t rotation) {
 #define XMIN 0
 #define XMAX 31
 #define YMIN 0
-// #define YMAX (103 - 2)
-#define YMAX (111 - 2)
+#define YMAX (111 - 4)
 
 #if (XMAX > 32) || (XMIN < 0) || (YMAX > 127) || (YMIN < 0)
     #error "Screen bounds exceeded"
@@ -43,6 +42,7 @@ static uint8_t active_particles = MAX_PARTICLES;
 // static uint8_t prev_wpm = 0;
 // static uint32_t timer = 0;
 static uint32_t idle_time = 0;
+static bool prev_oled_state = true;
 
 void draw_outline(void) {
     for (uint8_t x = XMIN+1; x <= XMAX-1; x++) { // Top and bottom borders
@@ -122,6 +122,8 @@ void check_wall_collisions(particle_t *p, float damping) {
 void check_particle_collisions(float damping) {
     for (uint8_t i = 0; i < active_particles; i++) {
         for (uint8_t j = i + 1; j < active_particles; j++) {
+            if (i == j) continue;
+
             particle_t *p1 = &particles[i];
             particle_t *p2 = &particles[j];
 
@@ -177,17 +179,18 @@ void check_particle_collisions(float damping) {
 
 void render(void) {
     const uint8_t wpm = get_current_wpm();
-
+    const bool oled_on = is_oled_on();
     const uint32_t time = timer_read32();
-    if (wpm > 0) {
+
+    if (wpm > 0 || (oled_on && !prev_oled_state)) {
         idle_time = time;
     }
 
+    prev_oled_state = oled_on;
 
-    if (time - idle_time > OLED_TIMEOUT_AUX) {
+    if (!oled_on || (time - idle_time > OLED_TIMEOUT_AUX)) {
         return;
     }
-    // timer++;
 
     draw_outline();
 
@@ -201,44 +204,30 @@ void render(void) {
         draw_particle((uint8_t)particles[i].x, (uint8_t)particles[i].y, false);
     }
 
-    // if (timer > 10) {
-    //     if (TIMER_DIFF_32(time, idle_time) > 120000 && active_particles > 0) {
-    //         active_particles--;
-    //         timer = 0;
-    //     }
-    //     else if (wpm > 0 && active_particles < MAX_PARTICLES) {
-    //         active_particles++;
-    //         timer = 0;
-    //     }
-    // }
-
-    // float damping = 0.9f + (wpm / 300.0f); // Damping factor based on WPM
     float avg_velocity = 0.f;
     for (uint8_t i = 0; i < active_particles; i++) {
         avg_velocity += sqrtf(particles[i].dx * particles[i].dx + particles[i].dy * particles[i].dy);
     };
 
-
     avg_velocity /= active_particles;
 
-    const float desired_velocity = (wpm/50.f) + 1.f;
-    float damping = (desired_velocity - avg_velocity) * 0.3f + 1.f;
+    float desired_velocity = (wpm/50.f) + 0.6f;
+    if (wpm > 0) {
+        desired_velocity += 0.9f;
+    }
+    float damping = MAX((desired_velocity - avg_velocity) * 0.2f + 1.f, 0.95f);
 
-    // Update particle positions
     for (uint8_t i = 0; i < active_particles; i++) {
         particles[i].x += particles[i].dx;
         particles[i].y += particles[i].dy;
     }
 
-    // Check and resolve particle-to-particle collisions
     check_particle_collisions(damping);
 
-    // Check and resolve wall collisions
     for (uint8_t i = 0; i < active_particles; i++) {
-        check_wall_collisions(&particles[i], damping);
+        check_wall_collisions(&particles[i], MIN(damping, 1.01f));
     }
 
-    // Draw all particles at new positions
     for (uint8_t i = 0; i < active_particles; i++) {
         draw_particle((uint8_t)particles[i].x, (uint8_t)particles[i].y, true);
     }
@@ -247,6 +236,7 @@ void render(void) {
     // oled_write_P(PSTR("WPM"), false);
     oled_write(get_u8_str(desired_velocity*100, '0'), false);
     oled_set_cursor(1, 15);
+    // oled_write(get_u8_str(wpm, '0'), false);
     oled_write(get_u8_str(avg_velocity*100, '0'), false);
 }
 
