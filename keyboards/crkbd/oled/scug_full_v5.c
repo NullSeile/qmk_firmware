@@ -4,7 +4,9 @@
 #include "oled_driver.h"
 #include "quantum.h"
 #include "timer.h"
-// #include "wpm.h"
+#ifdef WPM_ENABLE
+#    include "wpm.h"
+#endif
 
 #include "custom_keys.h"
 
@@ -92,21 +94,6 @@ static const char frame_sizes[] = {
 static const char diff_frames[] = {
     1,8,11,12,14,15,16,18,19,20,21,22,23,24,
 };
-static const uint32_t diff_frames_mask =
-      (1ul << 1)
-    | (1ul << 8)
-    | (1ul << 11)
-    | (1ul << 12)
-    | (1ul << 14)
-    | (1ul << 15)
-    | (1ul << 16)
-    | (1ul << 18)
-    | (1ul << 19)
-    | (1ul << 20)
-    | (1ul << 21)
-    | (1ul << 22)
-    | (1ul << 23)
-    | (1ul << 24);
 
 
 static uint8_t n_frames = sizeof(frame_sizes) / sizeof(frame_sizes[0]);
@@ -349,7 +336,11 @@ enum State {
 // }
 
 void render_v2(void) {
+#ifdef WPM_ENABLE
     const bool typing = get_current_wpm() > 0;
+#else
+    const bool typing = false;
+#endif
     const uint32_t time = timer_read32();
     const uint32_t time_diff = TIMER_DIFF_32(time, timer);
 
@@ -460,16 +451,16 @@ void render_v2(void) {
 
 
 
-bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
-    if (record->event.pressed) {
-        if (keycode == OL_PET) {
-            pets_remaining++;
-            return true;
-        }
-
-    }
-    return true;
-}
+// bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
+//     if (record->event.pressed) {
+//         if (keycode == OL_PET) {
+//             pets_remaining++;
+//             return true;
+//         }
+//
+//     }
+//     return true;
+// }
 
 bool oled_task_kb(void) {
     render_v2();
