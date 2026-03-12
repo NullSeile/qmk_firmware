@@ -2,19 +2,19 @@
 RGB_MATRIX_EFFECT(TYPING_HEATMAP)
 #    ifdef RGB_MATRIX_CUSTOM_EFFECT_IMPLS
 #        ifndef RGB_MATRIX_TYPING_HEATMAP_INCREASE_STEP
-#            define RGB_MATRIX_TYPING_HEATMAP_INCREASE_STEP 32
+#            define RGB_MATRIX_TYPING_HEATMAP_INCREASE_STEP 100
 #        endif
 
 #        ifndef RGB_MATRIX_TYPING_HEATMAP_DECREASE_DELAY_MS
-#            define RGB_MATRIX_TYPING_HEATMAP_DECREASE_DELAY_MS 25
+#            define RGB_MATRIX_TYPING_HEATMAP_DECREASE_DELAY_MS 50
 #        endif
 
 #        ifndef RGB_MATRIX_TYPING_HEATMAP_SPREAD
-#            define RGB_MATRIX_TYPING_HEATMAP_SPREAD 40
+#            define RGB_MATRIX_TYPING_HEATMAP_SPREAD 30
 #        endif
 
 #        ifndef RGB_MATRIX_TYPING_HEATMAP_AREA_LIMIT
-#            define RGB_MATRIX_TYPING_HEATMAP_AREA_LIMIT 16
+#            define RGB_MATRIX_TYPING_HEATMAP_AREA_LIMIT 255
 #        endif
 void process_rgb_matrix_typing_heatmap(uint8_t row, uint8_t col) {
 #        ifdef RGB_MATRIX_TYPING_HEATMAP_SLIM
@@ -36,7 +36,7 @@ void process_rgb_matrix_typing_heatmap(uint8_t row, uint8_t col) {
                 uint8_t distance = LED_DISTANCE(g_led_config.point[g_led_config.matrix_co[row][col]], g_led_config.point[g_led_config.matrix_co[i_row][i_col]]);
 #            undef LED_DISTANCE
                 if (distance <= RGB_MATRIX_TYPING_HEATMAP_SPREAD) {
-                    uint8_t amount = qsub8(RGB_MATRIX_TYPING_HEATMAP_SPREAD, distance);
+                    uint8_t amount = qsub8(RGB_MATRIX_TYPING_HEATMAP_SPREAD, distance) * RGB_MATRIX_TYPING_HEATMAP_INCREASE_STEP / RGB_MATRIX_TYPING_HEATMAP_SPREAD;
                     if (amount > RGB_MATRIX_TYPING_HEATMAP_AREA_LIMIT) {
                         amount = RGB_MATRIX_TYPING_HEATMAP_AREA_LIMIT;
                     }
@@ -82,12 +82,25 @@ bool TYPING_HEATMAP(effect_params_t* params) {
                 uint8_t val = g_rgb_frame_buffer[row][col];
                 if (!HAS_ANY_FLAGS(g_led_config.flags[g_led_config.matrix_co[row][col]], params->flags)) continue;
 
-                hsv_t hsv = {170 - qsub8(val, 85), rgb_matrix_config.hsv.s, scale8((qadd8(170, val) - 170) * 3, rgb_matrix_config.hsv.v)};
+                // hsv_t hsv = {170 - qsub8(val, 85), rgb_matrix_config.hsv.s, scale8((qadd8(170, val) - 170) * 3, rgb_matrix_config.hsv.v)};
+                hsv_t hsv = {
+                    // 170 - qsub8(val, 85),
+                    qsub8(170, val * 250 / 255),
+                    rgb_matrix_config.hsv.s,
+                    // scale8(255, rgb_matrix_config.hsv.v),
+                    scale8(qmul8(val, 6), rgb_matrix_config.hsv.v),
+                };
                 rgb_t rgb = rgb_matrix_hsv_to_rgb(hsv);
                 rgb_matrix_set_color(g_led_config.matrix_co[row][col], rgb.r, rgb.g, rgb.b);
 
                 if (decrease_heatmap_values) {
-                    g_rgb_frame_buffer[row][col] = qsub8(val, 1);
+                    // g_rgb_frame_buffer[row][col] = qsub8(val, 3);
+                    uint8_t diff = val / 10;
+                    if (diff == 0) {
+                        g_rgb_frame_buffer[row][col] = 0;
+                    } else {
+                        g_rgb_frame_buffer[row][col] = qsub8(val, diff);
+                    }
                 }
             }
         }
