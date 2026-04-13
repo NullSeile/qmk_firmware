@@ -21,6 +21,7 @@
 #include "quantum_keycodes.h"
 #include "action_util.h"
 #include <math.h>
+#include <string.h>
 
 // WPM Stuff
 static uint8_t  current_wpm = 0;
@@ -63,6 +64,16 @@ void set_current_wpm(uint8_t new_wpm) {
 }
 uint8_t get_current_wpm(void) {
     return current_wpm;
+}
+void clear_wpm(void) {
+#if !defined(WPM_UNFILTERED)
+    current_period = 0;
+    periods        = 1;
+    next_wpm       = 0;
+    prev_wpm       = 0;
+    current_wpm    = 0;
+    memset(period_presses, 0, sizeof(period_presses));
+#endif
 }
 
 bool wpm_keycode(uint16_t keycode) {

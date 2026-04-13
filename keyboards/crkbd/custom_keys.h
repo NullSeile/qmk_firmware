@@ -1,3 +1,5 @@
+#pragma once
+
 #include "quantum_keycodes.h"
 
 enum custom_keycodes {
@@ -12,5 +14,7 @@ enum custom_keycodes {
     NA_CCED, // ç
     NA_NTIL, // ñ
 
-    OL_PET,  // Pet the cat
+    OL_PET, // Pet the cat
 };
+
+void pet(void);

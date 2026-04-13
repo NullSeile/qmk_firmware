@@ -156,7 +156,8 @@ void draw_particle(q88_t qx, q88_t qy, bool on) {
     }
 }
 
-static const uint16_t ghost[] = {
+
+static const uint16_t face[] = { // Ghost
     0b111110,
     0b010011,
     0b111111,
@@ -164,15 +165,15 @@ static const uint16_t ghost[] = {
     0b111110,
 };
 
-static const uint16_t circle[] = {
-    0b01110,
-    0b11111,
-    0b11111,
-    0b11111,
-    0b01110,
-};
+// static const uint16_t face[] = { // Circle
+//     0b01110,
+//     0b11111,
+//     0b11111,
+//     0b11111,
+//     0b01110,
+// };
 
-const uint16_t *face = ghost;
+// const uint16_t *face = ghost;
 
 void draw_particle_filled(q88_t qx, q88_t qy) {
     uint8_t x0 = Q88_INT(qx);

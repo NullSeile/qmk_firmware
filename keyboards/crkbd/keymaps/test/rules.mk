@@ -20,10 +20,3 @@ MAGIC_ENABLE = no
 
 AVR_USE_MINIMAL_PRINTF = yes
 
-ifdef RIGHT_SIDE
-	EXTRAFLAGS += -DRIGHT_SIDE
-	SRC += oled/screensaver.c
-else
-	SRC += oled/scug_full_v5.c
-endif
-

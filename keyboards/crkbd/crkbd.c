@@ -16,19 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifdef OLED_ENABLE
+#include "keyboard.h"
+#include "custom_keys.h"
 
-#if defined(RIGHT_SIDE)
-#include "oled/screensaver.c"
-// #include "oled/bongo.c"
-// #include "oled/scug_batfly.c"
-// #include "oled/scug_full.c"
-#else
-// #include "oled/scug_sleep.c"
-// #include "oled/scug_full_v1.c"
-#include "oled/scug_full_v5.c"
-// #include "oled/scug_full_v2.c"
-// #include "oled/scug_full_debug.c"
-#endif
-
-#endif // OLED_ENABLE
+__attribute__((weak)) void pet(void) {}

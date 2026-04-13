@@ -41,5 +41,6 @@ uint8_t wpm_regress_count(uint16_t keycode);
 void    set_current_wpm(uint8_t);
 uint8_t get_current_wpm(void);
 void    update_wpm(uint16_t);
+void    clear_wpm(void);
 
 void decay_wpm(void);

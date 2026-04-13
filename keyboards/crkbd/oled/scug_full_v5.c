@@ -273,12 +273,27 @@ static uint32_t pet_start = 0;
 static uint8_t prev_frame_i = 255;
 static uint8_t frame_i = 0;
 
+
+
 enum State {
     Sleeping,
     GoingToSleep,
     Awake,
     Petting,
 } state = Sleeping;
+
+
+void pet(void) {
+    if (pets_remaining < UINT8_MAX) {
+        pets_remaining = 1;
+    }
+
+    frame_i = 0;
+    state = Petting;
+    pet_start = timer_read32();
+
+    clear_wpm();
+}
 
 
 // void render_v3(void) {
@@ -370,11 +385,6 @@ void render_v2(void) {
             if (typing) {
                 state = Awake;
             }
-            if (pets_remaining) {
-                state = Petting;
-                pet_start = time;
-                // pet_start = timer_read32();
-            }
         } break;
 
         case GoingToSleep: {
@@ -449,18 +459,6 @@ void render_v2(void) {
 //     }
 // }
 
-
-
-// bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
-//     if (record->event.pressed) {
-//         if (keycode == OL_PET) {
-//             pets_remaining++;
-//             return true;
-//         }
-//
-//     }
-//     return true;
-// }
 
 bool oled_task_kb(void) {
     render_v2();
