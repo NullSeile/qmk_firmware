@@ -108,7 +108,13 @@ bool TYPING_HEATMAP(effect_params_t* params) {
             }
 
             if (processed && decrease_heatmap_values) {
-                g_rgb_frame_buffer[row][col] = qsub8(val, 1);
+                // g_rgb_frame_buffer[row][col] = qsub8(val, 1);
+                uint8_t diff = val / 10;
+                if (diff == 0) {
+                    g_rgb_frame_buffer[row][col] = 0;
+                } else {
+                    g_rgb_frame_buffer[row][col] = qsub8(val, diff);
+                }
             }
         }
     }
